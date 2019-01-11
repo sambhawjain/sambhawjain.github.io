@@ -63,7 +63,7 @@ Before starting this instruction, you should:
 -	Oracle Database Cloud - Database as a Service (DBaaS). Don't have a subscription? Go to Oracle Store or [Oracle Try It](https://cloud.oracle.com/database)
 -	Capacity requirement 
 -	**Minimum 2 OCPU for DBaaS 256GB of storage**
--	**Minimum 10 OCPU for Autonomous Data warehouse cloud and 1 TB of storage**
+-	**Minimum 5 OCPU for Autonomous Data warehouse cloud and 1 TB of storage**
 -	Subscription to Oracle Autonomous Data Warehouse
 -	Your Oracle Cloud user name, password, and identity domain
 
