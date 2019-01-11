@@ -394,7 +394,7 @@ Note : Admin password should be same as adwcs instance admin password
 ![](./images/demo9.png)
 - Click Ok.
 - ![](./images/demo10.png)
-- Now open Dbaas schema script(apexdemoscript\Dbaas_Pdbuser.sql) and go to section change DBPROVISIONEDOCPUS snd DBPROVISIONEDOCPUS value same as number of CPU provisioned for ADW.
+- Now open Dbaas schema script(apexdemoscript\Dbaas_Pdbuser.sql) and go to section **change DBPROVISIONEDOCPUS** and DBPROVISIONEDOCPUS value same as number of CPU provisioned for ADW.
 - Now create connection for Dbaas database and run Dbaas schema script(apexdemoscript\Dbaas_Pdbuser.sql)
 ![](./images/demo11.png)
 9. Open Sql developer and connect to your ADWC environment and run ADWC schema script(apexdemoscript\Adwc_Schema.sql).
