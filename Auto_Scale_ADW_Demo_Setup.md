@@ -90,7 +90,7 @@ If you are using a SQL Developer version earlier than 18.2, see the documentatio
 3. In the Create Autonomous Data Warehouse dialog, enter the following information:
 - Display Name - Enter a name for the data warehouse for display purposes (eg. adwapexdemo).
 - Database Name - Use letters and numbers only, starting with a letter (eg. adwapexdemo). Maximum length is 14 characters. (Underscores not initially supported.)
-- CPU Core Count - Number of CPUs for your service.(Minimum to be 10)
+- CPU Core Count - Number of CPUs for your service.(Minimum to be 5)
 - Storage (TB) - Select your storage capacity in terabytes. It is the actual space available to your service instance, including system-related space allocations.(Minimum to be 1 TB)
 - Administrator Credentials - Password (BEstrO0ng_#11) for ADMIN user of the service instance. The password must meet the following requirements:
   * The password must be between 12 and 30 characters long and must include at least one uppercase letter, one lowercase letter, and one numeric character.
@@ -106,9 +106,9 @@ If you are using a SQL Developer version earlier than 18.2, see the documentatio
 4. The Create Autonomous Data Warehouse dialog closes. On the console, the State field indicates that the data warehouse is Provisioning. Once creation is completed, the State field changes from Provisioning to Available.
 ![](./images/adwc5.png)
 ![](./images/adwc6.png)
-5. Download the Credentials Zip File. Once you have created the data warehouse, download the credentials zip file for client access to that data warehouse. Click newly created instance
+5. Download the Credentials Zip File. Once you have created the data warehouse, download the credentials zip file for client access to that data warehouse. Click newly created instance and then select DB Connection
+6. The Database Connection dialog opens for downloading client credentials. Click Download.
 ![](./images/adwc7.png)
-6. The Database Connection dialog opens for downloading client credentials. Click Download. 
 7. In the Download Wallet dialog, enter an encryption password (BEstrO0ng_#11) for the wallet, confirm the password, and then click Download. 
 ![](./images/adwc8.png)
 8. Click Save File, and then click OK.
@@ -156,7 +156,7 @@ To create database you first need to create VCN (Virtual Cloud Network) if you h
 - The generated key appears under Public key for pasting into OpenSSH authorized_keys file. Copy public key in notepad we will need this while creating Dbaas provisioning.
  ![](./images/dbaas9.png)
 - To save the key in the PuTTY PPK format, click Save private key to save the private key of the key pair.
-7. Login to cloud environment, Click Services to show the available services. In the list of available services, select Database
+7. Login to cloud environment, Click Services to show the available services. In the list of available services, under Database select Baremetal ,VM and Exadata
  ![](./images/dbaas10.png)
 8. The console for Database displays. You can use the List Scope drop-down menu to select a compartment; in this example the gse00014135 (root) compartment is selected. Click Launch DB System.
 9. In the Create Launch DB System dialog, enter the following information:
@@ -203,6 +203,7 @@ cat /etc/oratab
   * export ORACLE_SID=APEXDB 
   * export ORACLE_HOME=/u01/app/oracle/product/12.1.0.2/dbhome_1
   * export PATH=$ORACLE_HOME/bin:$PATH
+- Save the bash_profile by pressing esc and typing wq.
 ![](./images/dbaas19.png)
 ![](./images/dbaas20.png)
 - Run source command 
@@ -218,10 +219,10 @@ cat /etc/oratab
 1. Login to DbaaS Instance through Putty.
 - Login as opc user.
 - Change user to oracle  and got to oracle home directory as below screen shot
-2. Download and unzip in oracle home directory  [APEX](http://www.oracle.com/technetwork/developer-tools/apex/downloads/index.html)
+2. Download "Oracle APEX 18.2 - English language" in local machine and then copy and unzip in oracle home directory(you can use WinSCP to copy from local to cloud instance) [APEX](http://www.oracle.com/technetwork/developer-tools/apex/downloads/index.html)
 ![](./images/apex1.png)
 3. cd to apex directory
-4. Start SQL*Plus and ensure you are connecting to your PDB and not to the "root" of the container database (APEX   should not be installed at all). Run Below Command to login
+4. Start SQL*Plus and ensure you are connecting to your PDB and not to the "root" of the container database (APEX should not be installed at all). Run Below Command to login
 - sqlplus / as sysdba
 - alter session set container=pdb1;
 - @apexins sysaux sysaux temp /i/
@@ -259,11 +260,11 @@ cat /etc/oratab
 1. Login to Dbaas Instance through Putty.
 - Login as opc user.
 - Change user to oracle  and got to oracle home directory as below screen shot
-2. Download and unzip ORDS in oracle home directory http://www.oracle.com/technetwork/developer-tools/rest-dataservices/downloads/index.html
+- run **mkdir ords** to create ords directory 
+2. Download "Oracle REST Data Services" in local machine and then copy  and unzip in ords folder in oracle home directory (you can use WinSCP to copy from local to cloud instance) [ORDS](https://www.oracle.com/technetwork/developer-tools/rest-data-services/downloads/index.html)
 ![](./images/ords1.png)
 3. Check access rule in iptables and open port for 80 and 8080.
-  - iptables -I INPUT 8 -p tcp -m state --state NEW -m tcp --dport 8080 -j ACCEPT -m comment --comment 
-  - "Required for    APEX."
+  - iptables -I INPUT 8 -p tcp -m state --state NEW -m tcp --dport 8080 -j ACCEPT -m comment --comment "Required for    APEX."
   - service iptables save
   - iptables -t nat -I PREROUTING -p tcp --dport 80 -j REDIRECT --to-port 8080
   - service iptables save
@@ -300,15 +301,17 @@ Note:- Please add ingress rule for your VCN to allow from public internet to 808
 6. Configure and start ORDS in stand-alone mode.  You'll be prompted for the SYS username and SYS password.kindly use the DBaaS Admin password as set above.
 - java -Dconfig.dir=/home/oracle/ords -jar ords.war install simple –preserveParamFile
 ![](./images/ords6.png)
-7. Browse below URL to check whether ORDS is up and running.
+7. Please add ingress rule for your VCN to allow from public internet to 8080 and 1521.
+![](./images/ords9.png)
+8. Browse below URL to check whether ORDS is up and running.
 - http://<DbaaS Instance IP address<DbaaS Instance IP address>>:8080/ords
-8. Use below credentials to login.
+9. Use below credentials to login.
     - Workspace : INTERNAL
     - Username  : ADMIN
     - Password  : BEstrO0ng_#11 (Admin password which you set earlier if Admin password does not work reset  password using below   step)
       ![](./images/ords7.png)
-9. Change your working directory to the apex directory where you unzipped the installation software. Login to sqlPlus   and run @apxchpwd. For more information refer below Url.[Oracle Community](https://community.oracle.com/thread/2332882?start=0&tstart=0) 
-10. Click sign In.
+10. Change your working directory to the apex directory where you unzipped the installation software. Login to sqlPlus   and run @apxchpwd. For more information refer below Url.[Oracle Community](https://community.oracle.com/thread/2332882?start=0&tstart=0) 
+11. Click sign In.
 ![](./images/ords8.png)
 	
 ### ADWC Scaling Demo Installation
@@ -317,8 +320,10 @@ Note:- Please add ingress rule for your VCN to allow from public internet to 808
 - Login as opc user.
 - Change user to oracle  and got to oracle home directory as below screen shot
 2.	Set Environment variable in 
-- vi ~./bash_profile
+- vi ~/.bash_profile
 - export ORACLE_UNQNAME=DemoDB_iad1cz (Dbaas unique name/you can check unique name at **cd 	/opt/oracle/dcs/commonstore/wallets/tde**)
+- After editing the bash_profile press esc and typing wq to save. 
+- source ~/.bash_profile
 ![](./images/demo1.png)
 3. Copy ADWC wallet in oracle home directory and unzip.
 -   mkdir wallet_adwc
@@ -333,46 +338,36 @@ Note:- Please add ingress rule for your VCN to allow from public internet to 808
   * SQLNET.CRYPTO_CHECKSUM_SERVER=REQUIRED
   * SQLNET.ENCRYPTION_TYPES_SERVER=(AES256,AES192,AES128)
   * SQLNET.CRYPTO_CHECKSUM_TYPES_SERVER=(SHA1)
+  * ##SQLNET.ENCRYPTION_CLIENT=REQUIRED
+  * ##SQLNET.CRYPTO_CHECKSUM_CLIENT=REQUIRED
   * SQLNET.ENCRYPTION_TYPES_CLIENT=(AES256,AES192,AES128)
   * SQLNET.CRYPTO_CHECKSUM_TYPES_CLIENT=(SHA1)
   * WALLET_LOCATION = (SOURCE = (METHOD = file) (METHOD_DATA = (DIRECTORY="/home/oracle/wallet_adwc")))
   * SSL_SERVER_DN_MATCH=yes
   * SQLNET.WALLET_OVERRIDE=TRUE
+  * ##SSL_CLIENT_AUTHENTICATION = FALSE
+  * ##SSL_VERSION = 0* 
 ![](./images/demo3.png)
 ![](./images/demo4.png)
-5. Change **/u01/app/oracle/product/12.1.0.2/dbhome_1/network/admin/tnsnames.ora** file as below.  Create entry for your Dbaas PDB and copy ADWC Wallet tnsname.ora entry as below.
-- APEXDB_IAD1D5 =
-  (DESCRIPTION =
-    (ADDRESS = (PROTOCOL = TCP)(HOST = apexdemo.sub1018160041.hdp.oraclevcn.com)(PORT = 1521))
-    (CONNECT_DATA =
-      (SERVER = DEDICATED)
-      (SERVICE_NAME = APEXDB_iad1d5.sub1018160041.hdp.oraclevcn.com)
-    )
-  )
+5. Change **/u01/app/oracle/product/12.1.0.2/dbhome_1/network/admin/tnsnames.ora** file as below.  Create entry for your Dbaas PDB and copy ADWC Wallet tnsname.ora entry as below(Note: The entries in tnsnames.ora should be same as the tnsnames.ora file in the wallet zip folder obtained from ADW instance).
+- APEXDB_IAD1D5 = (DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST =  apexdemo.sub1018160041.hdp.oraclevcn.com)(PORT = 1521))
+    (CONNECT_DATA = (SERVER = DEDICATED)
+      (SERVICE_NAME = APEXDB_iad1d5.sub1018160041.hdp.oraclevcn.com)))
 - adwapexdemo_high = (description= (address=(protocol=tcps)(port=1522)(host=adb.us-ashburn-1.oraclecloud.com))(connect_data=(service_name=d75u9tblitpxyls_adwapexdemo_high.adwc.oraclecloud.com))(security=(ssl_server_cert_dn=
         "CN=adwc.uscom-east-1.oraclecloud.com,OU=Oracle BMCS US,O=Oracle Corporation,L=Redwood City,ST=California,C=US"))   )
-
 - adwapexdemo_low = (description= (address=(protocol=tcps)(port=1522)(host=adb.us-ashburn-1.oraclecloud.com))(connect_data=(service_name=d75u9tblitpxyls_adwapexdemo_low.adwc.oraclecloud.com))(security=(ssl_server_cert_dn=
         "CN=adwc.uscom-east-1.oraclecloud.com,OU=Oracle BMCS US,O=Oracle Corporation,L=Redwood City,ST=California,C=US"))   )
-
 - adwapexdemo_medium = (description= (address=(protocol=tcps)(port=1522)(host=adb.us-ashburn-1.oraclecloud.com))(connect_data=(service_name=d75u9tblitpxyls_adwapexdemo_medium.adwc.oraclecloud.com))(security=(ssl_server_cert_dn=
-        "CN=adwc.uscom-east-1.oraclecloud.com,OU=Oracle BMCS US,O=Oracle Corporation,L=Redwood City,ST=California,C=US"))   )
-
-- PDB1 =
-  (DESCRIPTION =
-    (ADDRESS = (PROTOCOL = TCP)(HOST = apexdemo.sub1018160041.hdp.oraclevcn.com)(PORT = 1521))
-    (CONNECT_DATA =
-      (SERVER = DEDICATED)
-      (SERVICE_NAME = pdb1.sub1018160041.hdp.oraclevcn.com)
-    )
-  )
+        "CN=adwc.uscom-east-1.oraclecloud.com,OU=Oracle BMCS US,O=Oracle Corporation,L=Redwood City,ST=California,C=US")))
+- PDB1 = (DESCRIPTION = (ADDRESS = (PROTOCOL = TCP)(HOST = apexdemo.sub1018160041.hdp.oraclevcn.com)(PORT = 1521))
+    (CONNECT_DATA = (SERVER = DEDICATED)(SERVICE_NAME = pdb1.sub1018160041.hdp.oraclevcn.com)))
 ![](./images/demo5.png)
 6. Create password less login add below credential in ADWC wallet location(where you copied your ADWC wallet in oracle home directory) for more information go through below link [Password Less Setup](https://docs.oracle.com/cd/B19306_01/network.102/b14266/cnctslsh.htm#g1033548)
-- mkstore -wrl . -listCredential [password  BEstrO0ng_#11]
 - mkstore -wrl  .  -createCredential pdb1 pdbuser  BEstrO0ng_#11 (pdbuser password in Dbaas)
 - mkstore -wrl  .  -createCredential adwapexdemo_high admin BEstrO0ng_#11(ADWC admin password)
 - mkstore -wrl  .  -createCredential adwapexdemo_low admin BEstrO0ng_#11(ADWC admin password)
 - mkstore -wrl  .  -createCredential adwapexdemo_medium admin BEstrO0ng_#11 (ADWC admin password)
+- mkstore -wrl . -listCredential [password  BEstrO0ng_#11]
 ![](./images/demo6.png)
 7. Create link and check whether password less user is working.
 - SQL> sqlplus / as sysdba
@@ -386,18 +381,19 @@ Note : Admin password should be same as adwcs instance admin password
 ![](./images/demo7.png)
 8. Open SQL developer (version 18.3)  and connect to your Dbaas database. Please follow below step.
 - Configure SSH connection. Right click SSH Hosts and select “New SSH Host..”
-- Enter Name, Host, Username and give path to private key
-![](./images/demo8.png)
+![](./images/apexdemo.png)
+- Enter Name, Host (Public IP of Dbaas intsnace), Username and give path to private key(Which you use to connect Dbaas Instance)
+- ![](./images/demo8.png)
 - Click Ok
 - Right click on newly created SSH Host and select “New Local Port Forward”
 - Enter Name, Host(Private IP of Dbaas intsnace) and port IP
 ![](./images/demo9.png)
 - Click Ok.
 - ![](./images/demo10.png)
-- Now open Dbaas schema script(apexdemoscript\Dbaas_Pdbuser.sql) and go to section **change DBPROVISIONEDOCPUS** and DBPROVISIONEDOCPUS value same as number of CPU provisioned for ADW.
-- Now create connection for Dbaas database and run Dbaas schema script(apexdemoscript\Dbaas_Pdbuser.sql)
+- Now open Dbaas schema script "Dbaas_Pdbuser.sql"[apexdemoscript](https://github.com/sambhawjain/sambhawjain.github.io/tree/master/apexdemoscript) and go to section **change DBPROVISIONEDOCPUS** and DBPROVISIONEDOCPUS value same as number of CPU provisioned for ADW.
+- Now create connection for Dbaas database and run Dbaas schema scrip "Dbaas_Pdbuser.sql"[apexdemoscript](https://github.com/sambhawjain/sambhawjain.github.io/tree/master/apexdemoscript)
 ![](./images/demo11.png)
-9. Open Sql developer and connect to your ADWC environment and run ADWC schema script(apexdemoscript\Adwc_Schema.sql).
+9. Open Sql developer and connect to your ADWC environment and run ADWC schema script "Adwc_Schema.sql" [apexdemoscript](https://github.com/sambhawjain/sambhawjain.github.io/tree/master/apexdemoscript).
 ![](./images/demo12.png)
 10. Download ADWCS Demo shell script(scripts folder) from GitHub and copy in oracle home directory.
 ![](./images/demo13.png)
@@ -444,7 +440,7 @@ Note : Admin password should be same as adwcs instance admin password
 ![](./images/demo27.png)
 15. Click Manage Workspace and select import.
 ![](./images/demo28.png)
-16. Download workspace file from git(apexdemoscript\Apex_Demo_Workspace.sql) and import
+16. Download workspace "Apex_Demo_Workspace.sql" file from git [apexdemoscript](https://github.com/sambhawjain/sambhawjain.github.io/tree/master/apexdemoscript) in local and give location
 17. Click next and complete import on default value
 18. Once you finish you will be able to see in Existing Workspace
 ![](./images/demo29.png)
@@ -455,7 +451,7 @@ Note : Admin password should be same as adwcs instance admin password
 ![](./images/demo31.png)
 21.	Click App Builder menu and select import.
 ![](./images/demo32.png)
-22.	Download application script(apexdemoscript\Apex_Demo_Application.sql) and give location in Choose file. 
+22.	Download application script "Apex_Demo_Application.sql" from [apexdemoscript](https://github.com/sambhawjain/sambhawjain.github.io/tree/master/apexdemoscript) in local and give location in Choose file. 
 23.	Click Next and finish application deployment.
 24.	Once you finish you can run application
 ![](./images/demo33.png)
